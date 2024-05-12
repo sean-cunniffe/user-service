@@ -1,0 +1,75 @@
+@startuml Package Diagram
+title Package Diagram
+
+package main #DDDDDD {
+    protocol main2 as "main" {
+        - service Service
+        - config Configuration
+        init()
+        main()
+        createInstances()
+        readEnvConfiguration()
+    }
+}
+
+package configuration #DDDDDD {
+    protocol configuration {
+        + ReadEnvConfig() *Configuration, error
+    }
+    struct Config {
+        Storages 
+        Servers
+    }
+    struct Storages {
+        *MySQLConnectionOptions
+    }
+    struct Servers {
+        GrpcServerOptions
+        RestServerOptions
+    }
+}
+
+package service #DDDDDD {
+    protocol service {
+        + NewService(config.Servers, config.Storages) Service
+    }
+    interface Service {
+        + StartService(ctx) error
+        + ready() <-chan
+    }
+}
+
+package server #DDDDDD {
+    protocol server {
+        + CreateGrpcServer(GrpcServerOptions) *Server, error
+        + CreateRestServer(RestServerOptions) *Server, error
+    }
+    interface Server {
+        + Start(ctx) error
+        + CreateUserHandler(func(ctx, User) user, error)
+        + DeleteUserHandler(func(ctx, User) user, error)
+        + ModifyUserHandler(func(ctx, User) User, error)
+    }
+    struct grpcServerImpl {}
+    struct restServerImpl {}
+    struct ServerOptions {}
+    struct User {}
+}
+package storage #DDDDDD {
+    protocol storage {
+        + CreateMySQLConnection(MySQLConnectionOptions) Connection, error
+    }
+    interface Connection {
+        + CreateUser(ctx, User user) error
+        + DeleteUser(ctx, User user) error
+        + ModifyUser(ctx, User user) error
+    }
+    struct User{}
+    struct ConnectionOptions {}
+}
+
+Service -down-> Server
+Service -> Connection
+main2 -down-> Config
+main2 -down-> Service
+@enduml
