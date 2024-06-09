@@ -30,12 +30,12 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          tags: ${{ env.DOCKERHUB_IMAGE_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          tags: seancunniffe/user-service
       
       
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.DOCKERHUB_IMAGE_REGISTRY }}/${{ env.DOCKER_IMAGE_NAME }}
+          subject-name: seancunniffe/user-service
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
