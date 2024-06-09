@@ -1,0 +1,24 @@
+{
+    "name": "dev.container",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube": {},
+        "ghcr.io/devcontainers/features/go:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "golang.go",
+                "mhutchie.git-graph",
+                "github.vscode-github-actions",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "12gb",
+        "storage": "100gb"
+    }
+}
