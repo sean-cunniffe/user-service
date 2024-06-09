@@ -1,9 +1,11 @@
 {
     "name": "dev.container",
+    "image": "mcr.microsoft.com/devcontainers/go:1-1.22-bookworm",
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/kubectl-helm-minikube": {},
-        "ghcr.io/devcontainers/features/go:1": {}
+        "ghcr.io/devcontainers/features/go:1": {},
+        "ghcr.io/devcontainers/features/docker-in-docker": {}
     },
     "customizations": {
         "vscode": {
@@ -15,10 +17,5 @@
                 "ms-azuretools.vscode-docker"
             ]
         }
-    },
-    "hostRequirements": {
-        "cpus": 4,
-        "memory": "12gb",
-        "storage": "100gb"
     }
 }
