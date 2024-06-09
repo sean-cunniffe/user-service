@@ -1,8 +1,8 @@
 name: Publish Docker image
 
 on:
-  push:
-    branches: [ "docker-setup" ]
+  release:
+    types: [created]
 
 jobs:
   push_to_registry:
@@ -22,7 +22,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          
+
       - name: Extract short commit hash
         id: vars
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
