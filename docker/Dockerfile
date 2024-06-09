@@ -23,7 +23,7 @@ FROM alpine:latest
 COPY --from=builder /app/user-service .
 
 # Expose port 8080 to the outside world
-EXPOSE 8080
+EXPOSE 80 443
 
 # Command to run the executable
 CMD ["./user-service"]
