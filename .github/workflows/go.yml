@@ -5,9 +5,9 @@ name: Go
 
 on:
   push:
-    branches: [ "feature" ]
-  pull_request:
-    branches: [ "main" ]
+    branches-ignore:
+    - "^main$"
+    - "^feature$"
 
 jobs:
 
@@ -23,6 +23,18 @@ jobs:
 
     - name: Build
       run: go build -v ./...
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.58
   test:
     runs-on: ubuntu-latest
     steps:
