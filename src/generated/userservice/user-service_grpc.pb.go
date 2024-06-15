@@ -4,7 +4,7 @@
 // - protoc             v5.27.1
 // source: interface/grpc/user-service.proto
 
-package grpcinterface
+package userservice
 
 import (
 	context "context"
@@ -20,11 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	UserService_CreateUser_FullMethodName = "/UserService/CreateUser"
-	UserService_GetUser_FullMethodName    = "/UserService/GetUser"
-	UserService_UpdateUser_FullMethodName = "/UserService/UpdateUser"
-	UserService_DeleteUser_FullMethodName = "/UserService/DeleteUser"
-	UserService_ListUsers_FullMethodName  = "/UserService/ListUsers"
+	UserService_CreateUser_FullMethodName     = "/UserService/CreateUser"
+	UserService_GetUser_FullMethodName        = "/UserService/GetUser"
+	UserService_UpdateUser_FullMethodName     = "/UserService/UpdateUser"
+	UserService_DeleteUser_FullMethodName     = "/UserService/DeleteUser"
+	UserService_ListUsers_FullMethodName      = "/UserService/ListUsers"
+	UserService_VerifyPassword_FullMethodName = "/UserService/VerifyPassword"
+	UserService_ResetPassword_FullMethodName  = "/UserService/ResetPassword"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -43,6 +45,10 @@ type UserServiceClient interface {
 	DeleteUser(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	// Retrieves all users
 	ListUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersResponse, error)
+	// Verify user password
+	VerifyPassword(ctx context.Context, in *PasswordRequest, opts ...grpc.CallOption) (*VerifyPasswordResponse, error)
+	// Reset user password
+	ResetPassword(ctx context.Context, in *PasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userServiceClient struct {
@@ -103,6 +109,26 @@ func (c *userServiceClient) ListUsers(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *userServiceClient) VerifyPassword(ctx context.Context, in *PasswordRequest, opts ...grpc.CallOption) (*VerifyPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyPasswordResponse)
+	err := c.cc.Invoke(ctx, UserService_VerifyPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) ResetPassword(ctx context.Context, in *PasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, UserService_ResetPassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -119,6 +145,10 @@ type UserServiceServer interface {
 	DeleteUser(context.Context, *UserIdRequest) (*UserResponse, error)
 	// Retrieves all users
 	ListUsers(context.Context, *emptypb.Empty) (*UsersResponse, error)
+	// Verify user password
+	VerifyPassword(context.Context, *PasswordRequest) (*VerifyPasswordResponse, error)
+	// Reset user password
+	ResetPassword(context.Context, *PasswordRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -140,6 +170,12 @@ func (UnimplementedUserServiceServer) DeleteUser(context.Context, *UserIdRequest
 }
 func (UnimplementedUserServiceServer) ListUsers(context.Context, *emptypb.Empty) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
+}
+func (UnimplementedUserServiceServer) VerifyPassword(context.Context, *PasswordRequest) (*VerifyPasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyPassword not implemented")
+}
+func (UnimplementedUserServiceServer) ResetPassword(context.Context, *PasswordRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetPassword not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -244,6 +280,42 @@ func _UserService_ListUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_VerifyPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).VerifyPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_VerifyPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).VerifyPassword(ctx, req.(*PasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_ResetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ResetPassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ResetPassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ResetPassword(ctx, req.(*PasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -270,6 +342,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListUsers",
 			Handler:    _UserService_ListUsers_Handler,
+		},
+		{
+			MethodName: "VerifyPassword",
+			Handler:    _UserService_VerifyPassword_Handler,
+		},
+		{
+			MethodName: "ResetPassword",
+			Handler:    _UserService_ResetPassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
