@@ -17,19 +17,24 @@ import (
 )
 
 type (
+	// ServerManager manages the lifecycle of the grpc servers.
+	// ServerManager exposes functions to start the servers based on
+	// its config
 	ServerManager interface {
 		StartGrpcServers(ctx context.Context)
 		ServersStarted() <-chan struct{}
 	}
 
+	// ServerManagerConfig holds the config for the servers it manages
 	ServerManagerConfig struct {
 		ServeRetryDelay time.Duration   `yaml:"serveRetryDelay" json:"serveRetryDelay"`
 		ServerOptions   []ServerOptions `yaml:"serverOptions" json:"serverOptions"`
 	}
+	// ServerOptions contains the properties passed into the grpc server
 	ServerOptions struct {
 		Port              int            `yaml:"port" json:"port"`
 		ConnectionTimeout time.Duration  `yaml:"connectionTimeout" json:"connectionTimeout"`
-		TlsConfig         *dto.TLSConfig `yaml:"tlsConfig" json:"tlsConfig"`
+		TLSConfig         *dto.TLSConfig `yaml:"tlsConfig" json:"tlsConfig"`
 		MaxRecvMsgSize    int            `yaml:"maxRecvMsgSize" json:"maxRecvMsgSize"`
 	}
 	serverManager struct {
@@ -56,12 +61,12 @@ func getGrpcServerOptions(serverOptions ServerOptions) []grpc.ServerOption {
 		grpc.ConnectionTimeout(serverOptions.ConnectionTimeout),
 		grpc.MaxRecvMsgSize(serverOptions.MaxRecvMsgSize),
 	}
-	if serverOptions.TlsConfig == nil {
+	if serverOptions.TLSConfig == nil {
 		log.Printf("running server without TLS")
 		return options
 	}
 	// Load TLS config
-	tlsConfig := util.GetTLSConfig(*serverOptions.TlsConfig)
+	tlsConfig := util.GetTLSConfig(*serverOptions.TLSConfig)
 	options = append(options, grpc.Creds(credentials.NewTLS(tlsConfig)))
 	return options
 }

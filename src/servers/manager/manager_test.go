@@ -39,7 +39,7 @@ func TestStartGrpcServers(t *testing.T) {
 			{
 				Port:              50051,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         nil,
+				TLSConfig:         nil,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 		}
@@ -52,7 +52,7 @@ func TestStartGrpcServers(t *testing.T) {
 			{
 				Port:              50052,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         testTLS,
+				TLSConfig:         testTLS,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 		}
@@ -64,13 +64,13 @@ func TestStartGrpcServers(t *testing.T) {
 			{
 				Port:              50052,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         testTLS,
+				TLSConfig:         testTLS,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 			{
 				Port:              50051,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         nil,
+				TLSConfig:         nil,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 		}
@@ -82,13 +82,13 @@ func TestStartGrpcServers(t *testing.T) {
 			{
 				Port:              50051,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         nil,
+				TLSConfig:         nil,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 			{
 				Port:              50051,
 				ConnectionTimeout: 2 * time.Second,
-				TlsConfig:         nil,
+				TLSConfig:         nil,
 				MaxRecvMsgSize:    1024 * 1024,
 			},
 		}

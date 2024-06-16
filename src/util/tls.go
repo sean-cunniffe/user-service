@@ -7,6 +7,7 @@ import (
 	"user-service/src/dto"
 )
 
+// GetTLSConfig creates a TLS config from files and properties supplied by dto.TLSConfig
 func GetTLSConfig(tlsOptions dto.TLSConfig) *tls.Config {
 	// Load CA certificate
 	caCert, err := os.ReadFile(tlsOptions.CAFile)

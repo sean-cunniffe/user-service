@@ -26,6 +26,7 @@ type Role struct {
 	Perm []string
 }
 
+// TLSConfig hold tls files and properties
 type TLSConfig struct {
 	SkipVerify bool   `yaml:"skipVerify" json:"skipVerify"`
 	CertFile   string `yaml:"certFile" json:"certFile"`

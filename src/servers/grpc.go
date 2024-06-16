@@ -19,6 +19,7 @@ type userServiceServer struct {
 	userService us.UserService
 }
 
+// CreateUserServiceServer creates the grpc server instance which is ran on a grpc server
 func CreateUserServiceServer(userService us.UserService) pb.UserServiceServer {
 	return &userServiceServer{
 		userService: userService,

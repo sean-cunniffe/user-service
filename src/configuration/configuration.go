@@ -8,6 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Config holds configs for instances
 type Config struct {
 	LogLevel            string                      `json:"logLevel" yaml:"logLevel"` // debug, info, warn, error, fatal, panic
 	ServerManagerConfig manager.ServerManagerConfig `json:"serverManager" yaml:"serverManager"`
@@ -15,6 +16,7 @@ type Config struct {
 
 var defaultConfigFile = "src/configuration/config.yaml"
 
+// ReadEnvConfig reads default config and then overrides values with environment variables
 func ReadEnvConfig() *Config {
 	// TODO read in config from file mount
 	config := readDefaultConfig()
