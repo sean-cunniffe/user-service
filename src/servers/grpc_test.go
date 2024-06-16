@@ -6,6 +6,7 @@ import (
 
 func TestNewUserServiceServer(t *testing.T) {
 	t.Run("create userServiceServer", func(t *testing.T) {})
+	t.Run("create userServiceServer with nil params", func(t *testing.T) {})
 }
 
 func TestCreateUser(t *testing.T) {

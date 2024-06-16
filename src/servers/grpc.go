@@ -13,22 +13,21 @@ import (
 	us "user-service/src/services"
 )
 
-// UserServiceServer is the server API for UserService service.
-type UserServiceServer interface {
-}
-
-type userServiceServerImpl struct {
+type userServiceServer struct {
 	pb.UnimplementedUserServiceServer
 	userService us.UserService
 }
 
-// NewUserServiceServer creates a new UserServiceServer.
-func NewUserServiceServer(userService us.UserService) UserServiceServer {
-	return &userServiceServerImpl{userService: userService}
+func CreateUserServiceServer(userService us.UserService) pb.UserServiceServer {
+	return &userServiceServer{
+		userService: userService,
+	}
 }
 
+// NewUserServiceServer creates a new UserServiceServer instance.
+
 // CreateUser creates a new user.
-func (s *userServiceServerImpl) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
+func (s *userServiceServer) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
 	return nil, getRequestError(nil)
 }
 
@@ -37,31 +36,31 @@ func getRequestError(_ error) error {
 }
 
 // GetUser retrieves a user by ID.
-func (s *userServiceServerImpl) GetUser(ctx context.Context, req *pb.UserIdRequest) (*pb.UserResponse, error) {
+func (s *userServiceServer) GetUser(ctx context.Context, req *pb.UserIdRequest) (*pb.UserResponse, error) {
 	return nil, getRequestError(nil)
 }
 
 // UpdateUser updates an existing user.
-func (s *userServiceServerImpl) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
+func (s *userServiceServer) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.UserResponse, error) {
 	return nil, getRequestError(nil)
 }
 
 // DeleteUser deletes a user by ID.
-func (s *userServiceServerImpl) DeleteUser(ctx context.Context, req *pb.UserIdRequest) (*pb.UserResponse, error) {
+func (s *userServiceServer) DeleteUser(ctx context.Context, req *pb.UserIdRequest) (*pb.UserResponse, error) {
 	return nil, getRequestError(nil)
 }
 
 // ListUsers retrieves all users.
-func (s *userServiceServerImpl) ListUsers(ctx context.Context, req *emptypb.Empty) (*pb.UsersResponse, error) {
+func (s *userServiceServer) ListUsers(ctx context.Context, req *emptypb.Empty) (*pb.UsersResponse, error) {
 	return nil, getRequestError(nil)
 }
 
 // ResetPassword resets the password for the user
-func (s *userServiceServerImpl) ResetPassword(context.Context, *pb.PasswordRequest) (*emptypb.Empty, error) {
+func (s *userServiceServer) ResetPassword(context.Context, *pb.PasswordRequest) (*emptypb.Empty, error) {
 	return nil, getRequestError(nil)
 }
 
 // VerifyPassword verify the password matches what is in the data store
-func (s *userServiceServerImpl) VerifyPassword(context.Context, *pb.PasswordRequest) (*pb.VerifyPasswordResponse, error) {
+func (s *userServiceServer) VerifyPassword(context.Context, *pb.PasswordRequest) (*pb.VerifyPasswordResponse, error) {
 	return nil, getRequestError(nil)
 }

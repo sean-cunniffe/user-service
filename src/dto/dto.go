@@ -25,3 +25,9 @@ type Role struct {
 	Name string
 	Perm []string
 }
+
+type TLSConfig struct {
+	CertFile string `yaml:"certFile" json:"certFile"`
+	KeyFile  string `yaml:"keyFile" json:"keyFile"`
+	CAFile   string `yaml:"caFile" json:"caFile"`
+}
