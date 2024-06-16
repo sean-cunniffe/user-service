@@ -6,11 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func init() {
-	createInstances()
-}
-
 func main() {
+	createInstances()
 	parentCtx := context.Background()
 	log.Info("starting grpc server")
 	serverManager.StartGrpcServers(parentCtx)
