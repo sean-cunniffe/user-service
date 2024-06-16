@@ -1,0 +1,15 @@
+logLevel: "debug"
+serverManager:
+  serveRetryDelay: "2000ms"
+  serverOptions:
+  - port: 50051
+    connectionTimeout: "120000ms"
+    maxRecvMsgSize: 4000000
+  - port: 50052
+    connectionTimeout: "120000ms"
+    maxRecvMsgSize: 4000000
+    tlsConfig:
+      certFile: ../../generated/test_certs/test_server.crt
+      keyFile: ../../generated/test_certs/test_server.key
+      caFile: ../../generated/test_certs/test_ca.crt
+      skipVerify: false

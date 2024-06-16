@@ -8,6 +8,7 @@ import (
 )
 
 func TestReadConfig(t *testing.T) {
+	defaultConfigFile = "config.yaml"
 	t.Run("can read default config", func(t *testing.T) {
 		config := ReadEnvConfig()
 		if reflect.DeepEqual(config, Config{}) {

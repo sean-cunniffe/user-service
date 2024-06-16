@@ -27,7 +27,8 @@ type Role struct {
 }
 
 type TLSConfig struct {
-	CertFile string `yaml:"certFile" json:"certFile"`
-	KeyFile  string `yaml:"keyFile" json:"keyFile"`
-	CAFile   string `yaml:"caFile" json:"caFile"`
+	SkipVerify bool   `yaml:"skipVerify" json:"skipVerify"`
+	CertFile   string `yaml:"certFile" json:"certFile"`
+	KeyFile    string `yaml:"keyFile" json:"keyFile"`
+	CAFile     string `yaml:"caFile" json:"caFile"`
 }

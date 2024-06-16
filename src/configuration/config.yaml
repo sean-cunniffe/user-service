@@ -1,10 +1,12 @@
-ServerManager:
+logLevel: "debug"
+serverManager:
   serveRetryDelay: "2000ms"
   serverOptions:
-    port: 50052
+  - port: 50052
     connectionTimeout: "120000ms"
-    tlsConfig:
-      certFile: "/mount/secrets/server.crt"
-      keyFile: "/mount/secrets/server.key"
-      caFile: "/mount/secrets/ca.crt"
     maxRecvMsgSize: 4000000
+    tlsConfig:
+      certFile: /mount/secrets/server.crt
+      keyFile: /mount/secrets/server.key
+      caFile: /mount/secrets/ca.crt
+      skipVerify: false

@@ -7,15 +7,15 @@ import (
 	"user-service/src/dto"
 )
 
-func GetTLSConfig(tlsConfigFiles dto.TLSConfig) *tls.Config {
+func GetTLSConfig(tlsOptions dto.TLSConfig) *tls.Config {
 	// Load CA certificate
-	caCert, err := os.ReadFile(tlsConfigFiles.CAFile)
+	caCert, err := os.ReadFile(tlsOptions.CAFile)
 	if err != nil {
 		panic(err)
 	}
 
 	// Load server certificate and private key
-	certs, err := tls.LoadX509KeyPair(tlsConfigFiles.CertFile, tlsConfigFiles.KeyFile)
+	certs, err := tls.LoadX509KeyPair(tlsOptions.CertFile, tlsOptions.KeyFile)
 	if err != nil {
 		panic(err)
 	}
@@ -26,9 +26,10 @@ func GetTLSConfig(tlsConfigFiles dto.TLSConfig) *tls.Config {
 
 	// Create TLS configuration
 	return &tls.Config{
-		Certificates: []tls.Certificate{certs},
-		RootCAs:      caCertPool,
-		ClientAuth:   tls.RequireAndVerifyClientCert, // Change as per your needs
-		ClientCAs:    caCertPool,
+		Certificates:       []tls.Certificate{certs},
+		RootCAs:            caCertPool,
+		ClientAuth:         tls.RequireAndVerifyClientCert, // Change as per your needs
+		ClientCAs:          caCertPool,
+		InsecureSkipVerify: tlsOptions.SkipVerify,
 	}
 }
