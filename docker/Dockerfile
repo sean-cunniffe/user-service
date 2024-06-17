@@ -14,13 +14,14 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o user-service ./src/cmd/main.go
+RUN go build -o user-service user-service/src/cmd
 
 # Start a new stage from scratch
 FROM alpine:latest  
 
 # Copy the Pre-built binary file from the previous stage
 COPY --from=builder /app/user-service .
+COPY --from=builder /app/docker/config.yaml .
 
 # Expose port 8080 to the outside world
 EXPOSE 80 443

@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option go_package = "./userservice";
+
+
+// The user message definition
+message User {
+    string id = 1;                // Unique identifier for the user
+    string name = 2;              // Name of the user
+    string email = 3;             // Email address of the user
+    string password = 4;        // Password of the user
+    string role = 5;              // Role of the user (e.g., admin, user, etc.)
+}
+
+// The request message containing the user ID
+message UserIdRequest {
+    string id = 1;
+}
+
+// The request message containing the user ID and password
+message PasswordRequest {
+    string userId = 1;
+    string password = 2;
+}
+
+message VerifyPasswordResponse {
+    bool valid = 1;
+}
+
+// The request message for creating or updating a user
+message UserRequest {
+    string id = 1;                // Unique identifier for the user
+    string name = 2;              // Name of the user
+    string email = 3;             // Email address of the user
+    string password = 4;          // Password of the user
+    string role = 5;              // Role of the user (e.g., admin, user, etc.)
+}
+
+// The response message containing a user
+message UserResponse {
+    string id = 1;                // Unique identifier for the user
+    string name = 2;              // Name of the user
+    string email = 3;             // Email address of the user
+    string role = 4;              // Role of the user (e.g., admin, user, etc.)
+}
+
+// The response message containing a list of users
+message UsersResponse {
+    repeated User users = 1;
+}
+
+// The user service definition
+service UserService {
+    // Creates a new user
+    rpc CreateUser(UserRequest) returns (UserResponse);
+
+    // Retrieves a user by ID
+    rpc GetUser(UserIdRequest) returns (UserResponse);
+
+    // Updates an existing user
+    rpc UpdateUser(UserRequest) returns (UserResponse);
+
+    // Deletes a user by ID
+    rpc DeleteUser(UserIdRequest) returns (UserResponse);
+
+    // Retrieves all users
+    rpc ListUsers(google.protobuf.Empty) returns (UsersResponse);
+
+    // Verify user password
+    rpc VerifyPassword(PasswordRequest) returns (VerifyPasswordResponse);
+
+    // Reset user password
+    rpc ResetPassword(PasswordRequest) returns (google.protobuf.Empty);
+}
