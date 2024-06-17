@@ -14,6 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/reflection"
 )
 
 type (
@@ -87,6 +88,7 @@ func (sm *serverManager) StartGrpcServers(ctx context.Context) {
 		grpcServerOptions := getGrpcServerOptions(options)
 		server := grpc.NewServer(grpcServerOptions...)
 		pb.RegisterUserServiceServer(server, sm.userServiceServer)
+		reflection.Register(server)
 		servers[i] = server
 		context.AfterFunc(ctx, func() {
 			log.Debugf("shutting down the server %+v", server)

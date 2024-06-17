@@ -19,4 +19,4 @@ openssl x509 -req -in ${dir}/test_server.csr -CA ${dir}/test_ca.crt -CAkey ${dir
 message "verify server crt"
 openssl verify -CAfile ${dir}/test_ca.crt ${dir}/test_server.crt
 message "clean up"
-rm -rf ${dir}/test_ca.key ${dir}/test_server.csr ${dir}/test_ca.srl
+ls ${dir} | egrep ".csr|.srl"  | xargs -I {} rm ${dir}/{}

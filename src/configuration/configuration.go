@@ -14,7 +14,7 @@ type Config struct {
 	ServerManagerConfig manager.ServerManagerConfig `json:"serverManager" yaml:"serverManager"`
 }
 
-var defaultConfigFile = "src/configuration/config.yaml"
+var defaultConfigFile = "config.yaml"
 
 // ReadEnvConfig reads default config and then overrides values with environment variables
 func ReadEnvConfig() *Config {
