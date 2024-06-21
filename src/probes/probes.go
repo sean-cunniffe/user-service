@@ -38,9 +38,15 @@ func (p *Probes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if p.healthy {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			panic(err) // will never reach here
+		}
 	} else {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		w.Write([]byte("Service Unavailable"))
+		_, err := w.Write([]byte("Service Unavailable"))
+		if err != nil {
+			panic(err) // will never reach here
+		}
 	}
 }

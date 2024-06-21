@@ -33,5 +33,8 @@ func startHealthProbe() {
 		Addr:    ":8080",
 		Handler: &probe,
 	}
-	go healthServer.ListenAndServe()
+	err := healthServer.ListenAndServe()
+	if err != nil {
+		log.Fatalf("failed to start health probe server: %v", err)
+	}
 }
