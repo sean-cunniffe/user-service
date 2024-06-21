@@ -8,17 +8,17 @@ import (
 )
 
 // GetTLSConfig creates a TLS config from files and properties supplied by dto.TLSConfig
-func GetTLSConfig(tlsOptions dto.TLSConfig) *tls.Config {
+func GetTLSConfig(tlsOptions dto.TLSConfig) (*tls.Config, error) {
 	// Load CA certificate
 	caCert, err := os.ReadFile(tlsOptions.CAFile)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// Load server certificate and private key
 	certs, err := tls.LoadX509KeyPair(tlsOptions.CertFile, tlsOptions.KeyFile)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	// Create a certificate pool and add CA certificate to it
@@ -32,5 +32,5 @@ func GetTLSConfig(tlsOptions dto.TLSConfig) *tls.Config {
 		ClientAuth:         tls.RequireAndVerifyClientCert, // Change as per your needs
 		ClientCAs:          caCertPool,
 		InsecureSkipVerify: tlsOptions.SkipVerify,
-	}
+	}, nil
 }

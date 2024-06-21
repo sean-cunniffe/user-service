@@ -2,6 +2,7 @@ package main
 
 import (
 	"user-service/src/configuration"
+	probes "user-service/src/probes"
 	"user-service/src/servers"
 	"user-service/src/servers/manager"
 	userservice "user-service/src/services"
@@ -9,6 +10,7 @@ import (
 
 var (
 	serverManager manager.ServerManager
+	probe         probes.Probes
 )
 
 func createInstances() {
@@ -21,4 +23,5 @@ func createInstances() {
 	userServiceServer := servers.CreateUserServiceServer(userService)
 
 	serverManager = manager.CreateServerManager(config.ServerManagerConfig, userServiceServer)
+
 }
