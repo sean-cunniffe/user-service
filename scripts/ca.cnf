@@ -1,0 +1,13 @@
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+prompt             = no
+
+[ req_distinguished_name ]
+C  = IE
+ST = GALWAY
+L  = GALWAY CITY
+O  = .
+OU = .
+CN = testcertca.com
+emailAddress = sean.cunniffe927@gmail.com
