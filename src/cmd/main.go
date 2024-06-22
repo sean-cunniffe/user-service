@@ -12,7 +12,7 @@ func main() {
 	parentCtx := context.Background()
 
 	log.Info("starting health probe")
-	startProbes()
+	go startProbes()
 
 	serverManager.OnError(func(err error) {
 		probe.SetUnReady()
@@ -31,7 +31,7 @@ func main() {
 func startProbes() {
 	healthServer := http.Server{
 		Addr:    ":8080",
-		Handler: &probe,
+		Handler: probe,
 	}
 	err := healthServer.ListenAndServe()
 	if err != nil {

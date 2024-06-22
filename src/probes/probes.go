@@ -7,15 +7,24 @@ import (
 
 // Probes is a struct that holds the health probe status
 type Probes struct {
-	mu        sync.Mutex
-	liveness  bool
-	readiness bool
+	mu                 sync.Mutex
+	livenessProbePath  string
+	readinessProbePath string
+	liveness           bool
+	readiness          bool
 }
 
-func newProbes() *Probes {
+type ProbeConfig struct {
+	LivenessProbePath  string `json:"livenessProbePath" yaml:"livenessProbePath"`
+	ReadinessProbePath string `json:"readinessProbePath" yaml:"readinessProbePath"`
+}
+
+func NewProbes(config ProbeConfig) *Probes {
 	return &Probes{
-		liveness:  true,
-		readiness: false,
+		liveness:           true,
+		readiness:          false,
+		livenessProbePath:  config.LivenessProbePath,
+		readinessProbePath: config.ReadinessProbePath,
 	}
 }
 
@@ -50,11 +59,14 @@ func (p *Probes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	health := false
-	if r.URL.Path != "/liveness" {
+	switch r.URL.Path {
+	case p.livenessProbePath:
 		health = p.liveness
-	}
-	if r.URL.Path != "/readiness" {
+	case p.readinessProbePath:
 		health = p.readiness
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	if health {
