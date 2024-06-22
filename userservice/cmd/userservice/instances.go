@@ -1,11 +1,13 @@
 package main
 
 import (
-	"user-service/configuration"
-	probes "user-service/probes"
-	"user-service/servers"
-	"user-service/servers/manager"
-	userservice "user-service/services"
+	"user-service/src/configuration"
+	probes "user-service/src/probes"
+	"user-service/src/servers"
+	"user-service/src/servers/manager"
+	userservice "user-service/src/services"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -15,6 +17,7 @@ var (
 
 func createInstances() {
 	config := configuration.ReadEnvConfig()
+	log.Infof("creating instances with config %+v", config)
 
 	// Create services
 	userService := userservice.NewUserService()
