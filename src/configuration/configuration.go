@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"os"
+	healthprobes "user-service/src/probes"
 	"user-service/src/servers/manager"
 
 	"github.com/sirupsen/logrus"
@@ -12,6 +13,7 @@ import (
 type Config struct {
 	LogLevel            string                      `json:"logLevel" yaml:"logLevel"` // debug, info, warn, error, fatal, panic
 	ServerManagerConfig manager.ServerManagerConfig `json:"serverManager" yaml:"serverManager"`
+	ProbeConfig         healthprobes.ProbeConfig    `json:"probeConfig" yaml:"probeConfig"`
 }
 
 var defaultConfigFile = "config.yaml"

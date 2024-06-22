@@ -10,3 +10,6 @@ serverManager:
       keyFile: /mount/secrets/server.key
       caFile: /mount/secrets/ca.crt
       skipVerify: false
+probeConfig:
+  readinessProbePath: /readiness
+  livenessProbePath: /liveness

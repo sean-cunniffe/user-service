@@ -10,7 +10,7 @@ import (
 
 var (
 	serverManager manager.ServerManager
-	probe         probes.Probes
+	probe         *probes.Probes
 )
 
 func createInstances() {
@@ -24,4 +24,6 @@ func createInstances() {
 
 	serverManager = manager.CreateServerManager(config.ServerManagerConfig, userServiceServer)
 
+	// create probes
+	probe = probes.NewProbes(config.ProbeConfig)
 }
