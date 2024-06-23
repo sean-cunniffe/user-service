@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"os"
-	"user-service/src/dto"
+	"user-service/dto"
 )
 
 // GetTLSConfig creates a TLS config from files and properties supplied by dto.TLSConfig
