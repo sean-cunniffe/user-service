@@ -20,7 +20,8 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.22'
-
+    - name: change directory
+      run: cd ./userservice
     - name: Build
       run: go build -v ./...
   golangci:
@@ -31,6 +32,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: stable
+      - name: change directory
+        run: cd ./userservice
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
