@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"user-service/src/dto"
-	pb "user-service/src/generated/userservice"
-	util "user-service/src/util"
+	"user-service/dto"
+	pb "user-service/generated/userservice"
+	util "user-service/util"
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
