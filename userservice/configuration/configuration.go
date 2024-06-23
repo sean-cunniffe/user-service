@@ -2,8 +2,8 @@ package configuration
 
 import (
 	"os"
-	healthprobes "user-service/src/probes"
-	"user-service/src/servers/manager"
+	healthprobes "user-service/probes"
+	"user-service/servers/manager"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"

@@ -2,7 +2,7 @@ package userservice
 
 import (
 	"errors"
-	"user-service/src/dto"
+	"user-service/dto"
 )
 
 // UserService is the intermediary func between grpc request and CRUD activities in the data store

@@ -1,6 +1,6 @@
 package servers
 
-// generate a grpc server implementing code in src/generated/userservice
+// generate a grpc server implementing code in generated/userservice
 // and run it on port 8080
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	pb "user-service/src/generated/userservice"
-	us "user-service/src/services"
+	pb "user-service/generated/userservice"
+	us "user-service/services"
 )
 
 type userServiceServer struct {

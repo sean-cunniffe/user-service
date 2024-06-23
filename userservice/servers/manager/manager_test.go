@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"user-service/src/dto"
-	pb "user-service/src/generated/userservice"
+	"user-service/dto"
+	pb "user-service/generated/userservice"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
