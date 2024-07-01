@@ -21,11 +21,11 @@ type (
 	// ServerManager manages the lifecycle of the grpc servers.
 	// ServerManager exposes functions to start the servers based on
 	// its config
+	// ServerManager also exposes functions to register callbacks
 	ServerManager interface {
-		StartGrpcServers(ctx context.Context)
-		ServersStarted() <-chan struct{}
-		OnError(func(err error))
+		StartManager(ctx context.Context)
 		OnServing(func())
+		OnStopServing(func(serverOptions ServerOptions, err error))
 	}
 
 	// ServerManagerConfig holds the config for the servers it manages
@@ -33,6 +33,7 @@ type (
 		ServeRetryDelay time.Duration   `yaml:"serveRetryDelay" json:"serveRetryDelay"`
 		ServerOptions   []ServerOptions `yaml:"serverOptions" json:"serverOptions"`
 	}
+
 	// ServerOptions contains the properties passed into the grpc server
 	ServerOptions struct {
 		Port              int            `yaml:"port" json:"port"`
@@ -43,9 +44,13 @@ type (
 	serverManager struct {
 		config            ServerManagerConfig
 		userServiceServer pb.UserServiceServer
-		wg                *sync.WaitGroup
-		onErrorFunc       func(err error)
+		serverErrChan     chan struct {
+			so  *ServerOptions
+			err error
+		}
+		serverStartChan   chan *ServerOptions
 		onServingFunc     func()
+		onStopServingFunc func(ServerOptions, error)
 	}
 )
 
@@ -57,25 +62,59 @@ func CreateServerManager(config ServerManagerConfig, userServiceServer pb.UserSe
 	return &serverManager{
 		userServiceServer: userServiceServer,
 		config:            config,
-		wg:                wg,
-		onErrorFunc: func(err error) {
+		serverErrChan: make(chan struct {
+			so  *ServerOptions
+			err error
+		}),
+		serverStartChan: make(chan *ServerOptions),
+		onStopServingFunc: func(so ServerOptions, err error) {
 			log.Warnf("error in server manager: %+v", err)
 		},
 		onServingFunc: func() {
-			log.Info("server is serving")
+			log.Info("server is serving ")
 		},
 	}
 }
 
-func (sm *serverManager) OnError(f func(err error)) {
-	sm.onErrorFunc = f
+func (sm *serverManager) OnStopServing(f func(ServerOptions, error)) {
+	sm.onStopServingFunc = f
 }
 
 func (sm *serverManager) OnServing(f func()) {
 	sm.onServingFunc = f
 }
 
-func getGrpcServerOptions(serverOptions ServerOptions) ([]grpc.ServerOption, error) {
+// start the grpc server from the serveroptions
+func (sm *serverManager) StartManager(ctx context.Context) {
+	servers := make([]*grpc.Server, len(sm.config.ServerOptions))
+	serversReady := make(map[*ServerOptions]bool, len(servers))
+	for i := 0; i < len(sm.config.ServerOptions); i++ {
+		options := &sm.config.ServerOptions[i]
+		serversReady[options] = false
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			server, err := sm.registerServer(ctx, options)
+			if err != nil {
+				log.Warnf("error registering server %+v: %+v", options, err)
+				time.Sleep(sm.config.ServeRetryDelay)
+				i = i - 1
+				continue
+			}
+			servers[i] = server
+		}
+	}
+	// start serving
+	for i, server := range servers {
+		serverOptions := &sm.config.ServerOptions[i]
+		go sm.serveWithRetries(ctx, server, serverOptions)
+	}
+	// watch servers ready
+	go sm.watchServersReady(ctx, serversReady)
+}
+
+func (sm *serverManager) getGrpcServerOptions(ctx context.Context, serverOptions *ServerOptions) ([]grpc.ServerOption, error) {
 	options := []grpc.ServerOption{
 		grpc.ConnectionTimeout(serverOptions.ConnectionTimeout),
 		grpc.MaxRecvMsgSize(serverOptions.MaxRecvMsgSize),
@@ -85,7 +124,16 @@ func getGrpcServerOptions(serverOptions ServerOptions) ([]grpc.ServerOption, err
 		return options, nil
 	}
 	// Load TLS config
-	tlsConfig, err := util.GetTLSConfig(*serverOptions.TLSConfig)
+	tlsConfig, err := util.GetRefreshableTLSConfig(ctx, *serverOptions.TLSConfig, func(err error) {
+		log.Errorf("failed to refresh TLS configuration: %v", err)
+		sm.serverErrChan <- struct {
+			so  *ServerOptions
+			err error
+		}{so: serverOptions, err: err}
+	}, func() {
+		log.Info("refreshed TLS configuration")
+		sm.serverStartChan <- serverOptions
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -93,68 +141,82 @@ func getGrpcServerOptions(serverOptions ServerOptions) ([]grpc.ServerOption, err
 	return options, nil
 }
 
-func (sm *serverManager) ServersStarted() <-chan struct{} {
-	ready := make(chan struct{})
-	go func() {
-		sm.wg.Wait()
-		close(ready)
-	}()
-	return ready
-}
-
-// start the grpc server from the serveroptions
-func (sm *serverManager) StartGrpcServers(ctx context.Context) {
-	servers := make([]*grpc.Server, len(sm.config.ServerOptions))
-	for i, options := range sm.config.ServerOptions {
-		grpcServerOptions, err := getGrpcServerOptions(options)
-		if err != nil {
-			sm.onErrorFunc(err)
+func (sm *serverManager) watchServersReady(ctx context.Context, serversReady map[*ServerOptions]bool) {
+	for {
+		select {
+		case serverOptions := <-sm.serverStartChan:
+			serversReady[serverOptions] = true
+			// check nothing in map is false
+			allServing := true
+			for _, serving := range serversReady {
+				if !serving {
+					allServing = false
+					break
+				}
+			}
+			if allServing {
+				sm.onServingFunc()
+			}
+		case sigerr := <-sm.serverErrChan:
+			serversReady[sigerr.so] = false
+			sm.onStopServingFunc(*sigerr.so, sigerr.err)
+		case <-ctx.Done():
 			return
 		}
-		server := grpc.NewServer(grpcServerOptions...)
-		pb.RegisterUserServiceServer(server, sm.userServiceServer)
-		reflection.Register(server)
-		servers[i] = server
-		context.AfterFunc(ctx, func() {
-			log.Debugf("shutting down the server %+v", server)
-			server.GracefulStop()
-		})
 	}
-	for i, server := range servers {
-		go serveWithRetries(ctx, server, sm.config.ServerOptions[i], sm.config.ServeRetryDelay, sm.wg, sm.onErrorFunc, sm.onServingFunc)
+}
+
+func (sm *serverManager) registerServer(ctx context.Context, options *ServerOptions) (*grpc.Server, error) {
+	grpcServerOptions, err := sm.getGrpcServerOptions(ctx, options)
+	if err != nil {
+		return nil, err
 	}
+	server := grpc.NewServer(grpcServerOptions...)
+	pb.RegisterUserServiceServer(server, sm.userServiceServer)
+	reflection.Register(server)
+	return server, nil
 }
 
 // serveWithRetries tries to serve the server and reties on error.
 // Will continue until context is done
 // wg done is called when served
-func serveWithRetries(ctx context.Context, server *grpc.Server, serverOptions ServerOptions, serverRetryDelay time.Duration, wg *sync.WaitGroup, onErr func(err error), onServing func()) {
+func (sm *serverManager) serveWithRetries(ctx context.Context, server *grpc.Server, serverOptions *ServerOptions) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		default:
 			log.Debugf("serving with options %+v", serverOptions)
-			err := serveServer(server, serverOptions.Port, wg, onServing) // blocking
+			err := serveServer(ctx, server, serverOptions.Port, func() { sm.serverStartChan <- serverOptions }) // blocking
 			if err != nil {
-				log.Warnf("error serving Server %+v: %+v", serverOptions, err)
-				onErr(err)
+				sm.serverErrChan <- struct {
+					so  *ServerOptions
+					err error
+				}{so: serverOptions, err: err}
 			}
 		}
-		time.Sleep(serverRetryDelay)
+		time.Sleep(sm.config.ServeRetryDelay)
 	}
 }
 
-// serveServer start net.Listener on the port and call done on wg when listening and serves
-func serveServer(server *grpc.Server, port int, wg *sync.WaitGroup, onServing func()) error {
+// serveServer serves the server on the port and calls the onServing function
+// returns whem context is done or server is stopped
+func serveServer(ctx context.Context, server *grpc.Server, port int, onServing func()) error {
+	serverContext, cancel := context.WithCancel(ctx)
+	defer cancel()
 	list, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
-	wg.Done()
 	onServing()
-	if err := server.Serve(list); err != nil {
-		return err
-	}
-	return nil
+	var serverErr error
+	go func() {
+		if err := server.Serve(list); err != nil {
+			serverErr = err
+			cancel()
+		}
+	}()
+	<-serverContext.Done()
+	server.Stop()
+	return serverErr
 }
