@@ -8,10 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// watch starts watching the directories for changes
-func WatchDir(ctx context.Context, onChange func(string), dirs ...string) error {
+// watch starts watching the paths for changes
+func WatchPath(ctx context.Context, onChange func(string), paths ...string) error {
 	watcher, err := fsnotify.NewWatcher()
-	for _, dir := range dirs {
+	for _, dir := range paths {
 		err := watcher.Add(dir)
 		if err != nil {
 			return err

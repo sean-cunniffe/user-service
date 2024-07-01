@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sync"
 	"testing"
 	"time"
 
@@ -96,22 +97,19 @@ func TestStartGrpcServers(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		mockUserServiceServer := &MockUserServiceServer{}
 		defer ctrl.Finish()
-		waitServerStop := time.Millisecond * 2000
 		// Create server manager
 		sm := CreateServerManager(ServerManagerConfig{ServeRetryDelay: time.Millisecond * 500, ServerOptions: serverOptions}, mockUserServiceServer)
 		// Start servers
-		sm.StartGrpcServers(testContext)
-		go func(ctx context.Context) {
-			select {
-			case <-ctx.Done():
-				return
-			case <-sm.ServersStarted():
-				assert.FailNow(t, "servers should not be ready")
-
-			}
-		}(testContext)
-		// wait for server to stop
-		time.Sleep(waitServerStop)
+		sm.StartManager(testContext)
+		testWg := sync.WaitGroup{}
+		testWg.Add(1)
+		sm.OnStopServing(func(so ServerOptions, err error) {
+			testWg.Done()
+		})
+		sm.OnServing(func() {
+			assert.Fail(t, "server should not be ready")
+		})
+		testWg.Wait()
 		cancelCtx()
 	})
 }
@@ -124,13 +122,21 @@ func testServerWithOptions(t *testing.T, serverOptions []ServerOptions) {
 	waitServerStop := time.Millisecond * 500
 	// Create server manager
 	sm := CreateServerManager(ServerManagerConfig{ServeRetryDelay: time.Millisecond * 1000, ServerOptions: serverOptions}, mockUserServiceServer)
+	testWg := sync.WaitGroup{}
+	testWg.Add(1)
+	sm.OnServing(func() {
+		testWg.Done()
+	})
+	sm.OnStopServing(func(so ServerOptions, err error) {
+		assert.Fail(t, fmt.Sprintf("server stopped serving, %+v with error %v", so, err))
+	})
+
 	// Start servers
-	sm.StartGrpcServers(testContext)
-	<-sm.ServersStarted()
+	sm.StartManager(testContext)
 	for _, options := range serverOptions {
 		assert.True(t, isPortOpen(t, options.Port, 2*time.Second))
 	}
-
+	testWg.Wait()
 	// Stop servers
 	cancelCtx()
 	// wait for server to stop
