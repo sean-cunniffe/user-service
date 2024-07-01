@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"user-service/servers/manager"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -14,18 +15,21 @@ func main() {
 	log.Info("starting health probe")
 	go startProbes()
 
-	serverManager.OnError(func(err error) {
+	setupServerManagerCallbacks()
+	log.Info("starting grpc server")
+	serverManager.StartManager(parentCtx)
+	<-parentCtx.Done()
+}
+
+func setupServerManagerCallbacks() {
+	serverManager.OnStopServing(func(so manager.ServerOptions, err error) {
+		log.Errorf("server stopped serving, %+v with error %v", so, err)
 		probe.SetUnReady()
 	})
 	serverManager.OnServing(func() {
+		log.Debugf("servers are serving")
 		probe.SetReady()
 	})
-	log.Info("starting grpc server")
-	serverManager.StartGrpcServers(parentCtx)
-
-	log.Info("waiting for server to start")
-	serverManager.ServersStarted()
-	<-parentCtx.Done()
 }
 
 func startProbes() {

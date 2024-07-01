@@ -25,7 +25,7 @@ func TestWatchDir(t *testing.T) {
 			assert.True(t, callOnce)
 			callOnce = false
 		}
-		err := WatchDir(ctx, onChange, testDir)
+		err := WatchPath(ctx, onChange, testDir)
 		assert.Nil(t, err)
 
 		createTestFile(t, testDir, fileName)
@@ -45,7 +45,7 @@ func TestWatchDir(t *testing.T) {
 			assert.True(t, callOnce)
 			callOnce = false
 		}
-		err := WatchDir(ctx, onChange, testDir)
+		err := WatchPath(ctx, onChange, testDir)
 		assert.Nil(t, err)
 
 		writeToFile(t, filepath.Join(testDir, fileName))
