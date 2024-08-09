@@ -1,0 +1,7 @@
+cert-manager:
+  installCRDs: true
+
+organization:
+  name: "example.com"
+  units: "example"
+commonName: "example.com"
