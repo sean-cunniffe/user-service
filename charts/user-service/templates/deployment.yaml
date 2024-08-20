@@ -37,9 +37,11 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
+          {{- range $i, $val := .Values.userService.serverManager.serverOptions }}
+            - containerPort: {{ $val.port }}
               protocol: TCP
+              name: {{ $val.name }}
+          {{ end -}}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:

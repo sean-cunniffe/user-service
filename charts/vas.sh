@@ -1,13 +1,9 @@
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-helm uninstall cert-manager -n cert-manager
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.crds.yaml
 
-helm install cert-manager jetstack/cert-manager \
-  --namespace cert-manager \
-  --create-namespace \
-  --version v1.12.2 \
-  --set installCRDs=true
+echo 'installing integration chart'
 
 cd integration/
 helm uninstall integration
