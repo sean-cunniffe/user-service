@@ -24,7 +24,6 @@ jobs:
   golangci:
     name: lint
     runs-on: ubuntu-latest
-    timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -35,7 +34,7 @@ jobs:
         with:
           version: v1.58
           working-directory: userservice
-          args: --allow-parallel-runners --exclude-dirs generated --show-stats
+          args: --allow-parallel-runners --exclude-dirs generated --show-stats -v
   test:
     runs-on: ubuntu-latest
     steps:
