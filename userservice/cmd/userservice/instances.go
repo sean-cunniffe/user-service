@@ -1,16 +1,16 @@
 package main
 
 import (
-	"user-service/src/configuration"
-	probes "user-service/src/probes"
-	"user-service/src/servers"
-	"user-service/src/servers/manager"
-	userservice "user-service/src/services"
+	"user-service/configuration"
+	probes "user-service/probes"
+	"user-service/servers"
+	"user-service/servers/manager"
+	userservice "user-service/services"
 )
 
 var (
 	serverManager manager.ServerManager
-	probe         probes.Probes
+	probe         *probes.Probes
 )
 
 func createInstances() {
@@ -24,4 +24,6 @@ func createInstances() {
 
 	serverManager = manager.CreateServerManager(config.ServerManagerConfig, userServiceServer)
 
+	// create probes
+	probe = probes.NewProbes(config.ProbeConfig)
 }

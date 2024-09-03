@@ -1,2 +1,4 @@
-rm -rf ./src/generated/grpcinterface
-protoc --go_out=./src/generated/ --go-grpc_out=./src/generated/ interface/grpc/user-service.proto
+cd userservice
+rm -rf ./generated/grpcinterface
+protoc --go_out=./generated/ --go-grpc_out=./generated/ interface/grpc/user-service.proto
+cd -

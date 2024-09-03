@@ -1,0 +1,30 @@
+organization:
+  name: "example.com"
+  units: "example"
+commonName: "example.com"
+
+cert-manager:
+  namespace: security
+
+user-service:
+  userService:
+    logLevel: "debug"
+    serverManager:
+      serveRetryDelay: "2000ms"
+      serverOptions:
+      - port: 50052
+        name: "secure-grpc"
+        connectionTimeout: "120000ms"
+        maxRecvMsgSize: 4000000
+        tlsConfig:
+          certFile: /etc/tls/tls.crt
+          keyFile: /etc/tls/tls.key
+          caFile: /etc/tls/ca.crt
+          skipVerify: false
+      - port: 50051
+        name: "insecure-grpc"
+        connectionTimeout: "120000ms"
+        maxRecvMsgSize: 4000000
+    probeConfig:
+      readinessProbePath: /readiness
+      livenessProbePath: /liveness

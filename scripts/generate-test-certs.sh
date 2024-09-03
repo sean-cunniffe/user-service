@@ -4,7 +4,7 @@ message() {
     echo ""
 }
 
-dir=src/generated/test_certs
+dir=userservice/generated/test_certs
 ls ${dir} | xargs -I {} rm ${dir}/{}
 message "create ca key"
 openssl genpkey -algorithm RSA -out ${dir}/test_ca.key

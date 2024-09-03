@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "user-service.fullname" . }}
+  labels:
+    {{- include "user-service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  {{- range $i, $val := .Values.userService.serverManager.serverOptions }}
+    - port: {{ $val.port }}
+      targetPort: http
+      protocol: TCP
+      name: {{ $val.name }}
+  {{ end -}}
+  selector:
+    {{- include "user-service.selectorLabels" . | nindent 4 }}

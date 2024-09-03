@@ -2,7 +2,8 @@ package configuration
 
 import (
 	"os"
-	"user-service/src/servers/manager"
+	healthprobes "user-service/probes"
+	"user-service/servers/manager"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
@@ -12,6 +13,7 @@ import (
 type Config struct {
 	LogLevel            string                      `json:"logLevel" yaml:"logLevel"` // debug, info, warn, error, fatal, panic
 	ServerManagerConfig manager.ServerManagerConfig `json:"serverManager" yaml:"serverManager"`
+	ProbeConfig         healthprobes.ProbeConfig    `json:"probeConfig" yaml:"probeConfig"`
 }
 
 var defaultConfigFile = "config.yaml"
